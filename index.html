@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAMS Attendance Portal | Live Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    
+    <!-- Header -->
+    <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+      <div>
+        <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">KJIAR 1st Prof Attendance Tracker</h1>
+        <p class="text-sm text-slate-500 mt-1" id="lastUpdated">Loading last sync date...</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+          ● Auto-Sync Active
+        </span>
+      </div>
+    </header>
+
+    <!-- Controls -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <input type="text" id="searchInput" placeholder="Search by name or enroll no..." 
+             class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+      
+      <select id="filterStatus" class="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+        <option value="all">All Statuses</option>
+        <option value="eligible">≥ 75% Eligible</option>
+        <option value="defaulter">&lt; 75% Shortage</option>
+      </select>
+
+      <select id="sortBy" class="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+        <option value="roll">Sort by Roll Number</option>
+        <option value="avg-desc">Highest Overall Average</option>
+        <option value="avg-asc">Lowest Overall Average</option>
+      </select>
+    </div>
+
+    <!-- Table Container -->
+    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead class="bg-slate-100/75 border-b border-slate-200 text-slate-600 font-semibold">
+          <tr>
+            <th class="py-3 px-4">Roll</th>
+            <th class="py-3 px-4">Student</th>
+            <th class="py-3 px-4 text-center">Rachana</th>
+            <th class="py-3 px-4 text-center">Kriya</th>
+            <th class="py-3 px-4 text-center">Samhita</th>
+            <th class="py-3 px-4 text-center">Samskritam</th>
+            <th class="py-3 px-4 text-center">Padartha</th>
+            <th class="py-3 px-4 text-center">Overall</th>
+            <th class="py-3 px-4 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody" class="divide-y divide-slate-100">
+          <!-- Dynamic Rows Injected Here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let allStudents = [];
+
+    async function loadData() {
+      try {
+        const res = await fetch('./attendance.json');
+        const data = await res.json();
+        allStudents = data.students;
+        document.getElementById('lastUpdated').innerText = `Last portal sync: ${new Date().toLocaleDateString()}`;
+        render();
+      } catch (e) {
+        document.getElementById('lastUpdated').innerText = "Failed to load dynamic data.";
+      }
+    }
+
+    function render() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const sortBy = document.getElementById('sortBy').value;
+
+      let filtered = allStudents.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(search) || s.enroll.includes(search);
+        const matchesStatus = statusFilter === 'all' 
+          ? true 
+          : statusFilter === 'eligible' ? s.eligible : !s.eligible;
+        return matchesSearch && matchesStatus;
+      });
+
+      if (sortBy === 'roll') filtered.sort((a, b) => a.roll - b.roll);
+      if (sortBy === 'avg-desc') filtered.sort((a, b) => b.overall_average - a.overall_average);
+      if (sortBy === 'avg-asc') filtered.sort((a, b) => a.overall_average - b.overall_average);
+
+      const tbody = document.getElementById('studentTableBody');
+      tbody.innerHTML = filtered.map(s => `
+        <tr class="hover:bg-slate-50/80 transition-colors">
+          <td class="py-3 px-4 font-mono text-slate-500 font-medium">${s.roll}</td>
+          <td class="py-3 px-4 font-semibold text-slate-800">
+            ${s.name}
+            <span class="block text-xs font-normal text-slate-400">#${s.enroll}</span>
+          </td>
+          <td class="py-3 px-4 text-center font-medium">${s.subject_averages.rachana}%</td>
+          <td class="py-3 px-4 text-center font-medium">${s.subject_averages.kriya}%</td>
+          <td class="py-3 px-4 text-center font-medium">${s.subject_averages.samhita}%</td>
+          <td class="py-3 px-4 text-center font-medium">${s.subject_averages.samskritam}%</td>
+          <td class="py-3 px-4 text-center font-medium">${s.subject_averages.padartha}%</td>
+          <td class="py-3 px-4 text-center font-bold ${s.overall_average >= 75 ? 'text-emerald-600' : 'text-rose-600'}">
+            ${s.overall_average}%
+          </td>
+          <td class="py-3 px-4 text-center">
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${s.eligible ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+              ${s.eligible ? 'Eligible' : 'Shortage'}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('searchInput').addEventListener('input', render);
+    document.getElementById('filterStatus').addEventListener('change', render);
+    document.getElementById('sortBy').addEventListener('change', render);
+
+    loadData();
+  </script>
+</body>
+  </html>
