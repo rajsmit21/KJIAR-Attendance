@@ -1,0 +1,13 @@
+{
+  "students": 60,
+  "months": 10,
+  "records": 600,
+  "subject_names": [
+    "KRIYA SHARIRA",
+    "PADARTHA VIGYAN",
+    "RACHANA SHARIRA",
+    "SAMHITA ADHYAYAN-1",
+    "SAMSKRITAM & AI",
+    "SAMSKRITAM & AI`"
+  ]
+}

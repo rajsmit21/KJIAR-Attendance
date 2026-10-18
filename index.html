@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Student-wise BAMS attendance tracker with monthly history and subject averages.">
+<title>AttendWise · Student Attendance</title>
+<style>
+:root{--bg:#0b1220;--panel:#111c2e;--panel2:#16243a;--line:#26364f;--text:#eef4ff;--muted:#9eacc3;--brand:#79e0c3;--blue:#83b6ff;--good:#69ddb0;--warn:#ffd479;--bad:#ff8d9a;--shadow:0 18px 50px #0003}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#1b3452 0,transparent 34%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}a{color:var(--brand)}
+.wrap{max-width:1240px;margin:auto;padding:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.brand{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#79e0c3,#83b6ff);color:#102033;font-weight:900;font-size:20px;box-shadow:0 8px 28px #79e0c333}.brand h1{font-size:19px;margin:0;letter-spacing:-.4px}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px #69ddb018}
+.hero{display:grid;grid-template-columns:1.5fr .8fr;gap:18px;margin-bottom:18px}.hero-card,.panel,.stat{border:1px solid var(--line);background:linear-gradient(145deg,#142238ed,#101a2aed);border-radius:22px;box-shadow:var(--shadow)}.hero-card{padding:28px;position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;border:1px solid #79e0c32c;right:-70px;top:-90px;box-shadow:0 0 0 28px #79e0c309,0 0 0 60px #79e0c306;pointer-events:none}.eyebrow{color:var(--brand);font-size:11px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase}.hero h2{font-size:clamp(27px,4vw,42px);line-height:1.12;letter-spacing:-1.5px;margin:10px 0}.hero p{max-width:630px;color:var(--muted);margin:0}.lookup{padding:20px;display:flex;flex-direction:column;justify-content:center;gap:12px}.lookup label{font-size:12px;color:var(--muted);font-weight:700}.lookup input{width:100%;background:#0b1423;border:1px solid #344761;color:var(--text);border-radius:12px;padding:13px 14px;outline:none}.lookup input:focus{border-color:var(--brand);box-shadow:0 0 0 3px #79e0c31c}.btn{border:0;border-radius:12px;padding:12px 15px;background:var(--brand);color:#0b1a26;font-weight:800}.btn.secondary{background:#1c2b42;color:var(--text);border:1px solid var(--line)}.btn.small{padding:8px 11px;font-size:12px}.lookup-note{font-size:11px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:18px 0}.stat{padding:17px 18px}.stat .label{font-size:12px;color:var(--muted)}.stat .value{font-size:28px;font-weight:850;letter-spacing:-.8px;margin-top:5px}.stat .sub{font-size:11px;color:var(--muted);margin-top:3px}
+.panel{padding:21px;margin:16px 0}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:17px}.panel h3{margin:0;font-size:17px;letter-spacing:-.3px}.panel .desc{color:var(--muted);font-size:12px;margin-top:4px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 9px;font-size:11px;font-weight:800;background:#26364d;color:#cbd7e8}.pill.good{background:#173d35;color:var(--good)}.pill.warn{background:#493b20;color:var(--warn)}.pill.bad{background:#482832;color:var(--bad)}
+.subject-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.subject{padding:16px;border:1px solid var(--line);border-radius:16px;background:#0e1929}.subject-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.subject-name{font-size:13px;font-weight:750}.percent{font-size:21px;font-weight:850;white-space:nowrap}.track{height:8px;border-radius:10px;background:#26354b;overflow:hidden;margin:12px 0 10px}.fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#67d9b1,#91d7ff)}.fill.low{background:linear-gradient(90deg,#ff9a9e,#ffc477)}.streams{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stream{background:#142238;border-radius:10px;padding:9px}.stream span{display:block;color:var(--muted);font-size:10px}.stream b{font-size:14px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}table{border-collapse:collapse;width:100%;min-width:700px;font-size:12px}th,td{text-align:left;padding:12px;border-bottom:1px solid #26364f;white-space:nowrap}th{background:#17263b;color:#b9c9df;font-size:10px;text-transform:uppercase;letter-spacing:.6px;position:sticky;top:0}tr:last-child td{border-bottom:0}td.num{text-align:right;font-variant-numeric:tabular-nums}tr:hover td{background:#ffffff05}.history-controls{display:flex;gap:9px;flex-wrap:wrap}.history-controls select{background:#0b1423;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px}
+.callout{padding:13px 15px;border-radius:13px;border:1px solid #66552b;background:#2a251a;color:#e8d8aa;font-size:12px;margin-top:14px}.empty{padding:30px;text-align:center;color:var(--muted)}.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11px;padding:18px 2px 28px}.hidden{display:none!important}
+@media(max-width:800px){.wrap{padding:14px}.hero{grid-template-columns:1fr}.hero-card{padding:22px}.stats{grid-template-columns:repeat(2,1fr)}.subject-grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.status{max-width:145px;text-align:right}.stat .value{font-size:25px}.panel{padding:15px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="topbar">
+  <div class="brand"><div class="logo">A</div><div><h1>AttendWise</h1><p>BAMS · Student attendance companion</p></div></div>
+  <div class="status"><span class="dot"></span><span id="statusText">Loading attendance data…</span></div>
+</header>
+<section class="hero">
+  <div class="hero-card"><div class="eyebrow">Your attendance, made clear</div><h2>Know where you stand.<br>Plan with confidence.</h2><p>Search your enrollment number to view monthly attendance, subject-wise averages, and a simple 75% benchmark based on published percentages.</p></div>
+  <div class="hero-card lookup">
+    <label for="studentSearch">FIND YOUR RECORD</label>
+    <input id="studentSearch" type="search" placeholder="Enrollment number or student name" autocomplete="off">
+    <button id="findBtn" class="btn">View my attendance →</button>
+    <div class="lookup-note">Choose only your own record. This dashboard displays data published by the college.</div>
+  </div>
+</section>
+<div id="noStudent" class="panel empty">Enter your enrollment number or name to open an individual attendance report.</div>
+<div id="report" class="hidden">
+  <section class="panel">
+    <div class="panel-head"><div><div class="eyebrow">Student report</div><h3 id="studentName">—</h3><div class="desc" id="studentMeta">—</div></div><button id="clearBtn" class="btn secondary small">Clear student</button></div>
+    <div class="stats">
+      <div class="stat"><div class="label">Overall average</div><div class="value" id="overall">—</div><div class="sub">Average of available subject averages</div></div>
+      <div class="stat"><div class="label">Subjects ≥ 75%</div><div class="value" id="subjectPass">—</div><div class="sub">Based on published percentages</div></div>
+      <div class="stat"><div class="label">Months available</div><div class="value" id="monthsCount">—</div><div class="sub">December 2025 – September 2026</div></div>
+      <div class="stat"><div class="label">75% benchmark</div><div class="value" id="benchmark">—</div><div class="sub" id="benchmarkSub">—</div></div>
+    </div>
+    <div class="callout">Calculation note: each subject average is the mean of its available Theory and NLHT + NLHP percentages across the selected months. Overall average is the mean of the subject averages. This is an estimate from published percentages, not an official eligibility decision.</div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><div><h3>Subject-wise averages</h3><div class="desc">December 2025 to September 2026, where data is available.</div></div><span class="pill" id="rangePill">10-month range</span></div>
+    <div id="subjectGrid" class="subject-grid"></div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><div><h3>Monthly history</h3><div class="desc">View Theory, NLHT + NLHP and combined subject values month by month.</div></div><div class="history-controls"><select id="monthFilter"><option value="all">All months</option></select><button id="downloadBtn" class="btn secondary small">Export my CSV</button></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Month</th><th>Subject</th><th>Theory</th><th>NLHT + NLHP</th><th>Subject mean</th><th>75% benchmark</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+  </section>
+</div>
+<footer class="footer"><span>Source: <a href="https://www.kjiar.edu.in/9-2-msr-ccim/attendance/students" target="_blank" rel="noopener">College attendance page</a></span><span id="updatedAt">Dataset timestamp: —</span><span>Informational tool · Verify official requirements with the college</span></footer>
+</div>
+<script>
+const DATA_URL = "./attendance-data.json";
+const TARGET = 75;
+let data = null, currentStudent = null;
+const $ = id => document.getElementById(id);
+const fmt = v => Number.isFinite(v) ? `${v.toFixed(1)}%` : "—";
+const mean = arr => { const a=arr.filter(v=>Number.isFinite(v)); return a.length ? a.reduce((x,y)=>x+y,0)/a.length : NaN; };
+const norm = s => (s||"").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+function statusPill(value){if(!Number.isFinite(value))return '<span class="pill">No data</span>';if(value>=TARGET)return '<span class="pill good">At / above 75%</span>';return '<span class="pill bad">Below 75%</span>';}
+function getSubjects(student){
+  const map = {};
+  for(const month of (data.months||[])){
+    const entry = student.months?.[month]; if(!entry) continue;
+    for(const [name,streams] of Object.entries(entry.subjects||{})){
+      const key=name.trim();
+      if(!map[key]) map[key]={name:key,theory:[],nlht:[],months:[]};
+      if(Number.isFinite(Number(streams.THEORY))) map[key].theory.push(Number(streams.THEORY));
+      if(Number.isFinite(Number(streams["NLHT + NLHP"]))) map[key].nlht.push(Number(streams["NLHT + NLHP"]));
+      map[key].months.push({month,theory:streams.THEORY,nlht:streams["NLHT + NLHP"]});
+    }
+  }
+  return Object.values(map).map(s=>({...s,theoryAvg:mean(s.theory),nlhtAvg:mean(s.nlht),avg:mean([...s.theory,...s.nlht])})).sort((a,b)=>a.name.localeCompare(b.name));
+}
+function render(student){
+  currentStudent=student;
+  $("noStudent").classList.add("hidden"); $("report").classList.remove("hidden");
+  $("studentName").textContent=student.name;
+  $("studentMeta").textContent=`Enrollment no. ${student.enrollment} · BAMS First Professional`;
+  const subjects=getSubjects(student);
+  const averages=subjects.map(s=>s.avg).filter(Number.isFinite);
+  const overall=mean(averages);
+  const pass=subjects.filter(s=>Number.isFinite(s.avg)&&s.avg>=TARGET).length;
+  const availableMonths=(data.months||[]).filter(m=>student.months?.[m]).length;
+  $("overall").textContent=fmt(overall); $("subjectPass").textContent=`${pass}/${subjects.length}`;
+  $("monthsCount").textContent=`${availableMonths}/${data.months.length}`;
+  $("benchmark").textContent=Number.isFinite(overall)?(overall>=TARGET?"Reached":"Not yet"):"—";
+  $("benchmarkSub").textContent=Number.isFinite(overall)?`${fmt(overall-TARGET)} vs target`:"No data";
+  $("rangePill").textContent=`${data.months.length}-month range`;
+  $("subjectGrid").innerHTML=subjects.map(s=>{
+    const w=Number.isFinite(s.avg)?Math.max(0,Math.min(100,s.avg)):0;
+    return `<article class="subject"><div class="subject-top"><div class="subject-name">${escapeHtml(s.name)}</div><div class="percent">${fmt(s.avg)}</div></div><div class="track"><div class="fill ${w<TARGET?'low':''}" style="width:${w}%"></div></div><div class="streams"><div class="stream"><span>Average Theory</span><b>${fmt(s.theoryAvg)}</b></div><div class="stream"><span>Average NLHT + NLHP</span><b>${fmt(s.nlhtAvg)}</b></div></div><div style="margin-top:10px">${statusPill(s.avg)}</div></article>`;
+  }).join("");
+  const filter=$("monthFilter").value;
+  const months=(data.months||[]).filter(m=>student.months?.[m]&&(filter==="all"||filter===m));
+  const body=[];
+  for(const month of months){
+    const entry=student.months[month];
+    for(const [name,streams] of Object.entries(entry.subjects||{})){
+      const t=toNum(streams.THEORY), n=toNum(streams["NLHT + NLHP"]);
+      const combined=mean([t,n]);
+      body.push(`<tr><td>${escapeHtml(month)}</td><td>${escapeHtml(name)}</td><td class="num">${fmt(t)}</td><td class="num">${fmt(n)}</td><td class="num"><b>${fmt(combined)}</b></td><td>${Number.isFinite(combined)?(combined>=TARGET?'<span class="pill good">≥ 75%</span>':'<span class="pill bad">< 75%</span>'):'—'}</td></tr>`);
+    }
+  }
+  $("historyBody").innerHTML=body.join("")||'<tr><td colspan="6">No monthly records for this student.</td></tr>';
+}
+function toNum(v){if(v===null||v===undefined||v==="")return NaN;const n=Number(v);return Number.isFinite(n)&&n>=0&&n<=100?n:NaN;}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function findStudent(){
+  const q=norm($("studentSearch").value);
+  if(!q||!data)return;
+  const exact=data.students.find(s=>norm(s.enrollment)===q);
+  const matches=data.students.filter(s=>norm(s.name).includes(q)||norm(s.enrollment).includes(q));
+  const found=exact|| (matches.length===1?matches[0]:null);
+  if(found){render(found);return;}
+  if(matches.length>1){$("noStudent").classList.remove("hidden");$("report").classList.add("hidden");$("noStudent").textContent=`${matches.length} students match. Enter your full enrollment number to open one record.`;return;}
+  $("noStudent").classList.remove("hidden");$("report").classList.add("hidden");$("noStudent").textContent="No matching student found in the current dataset.";
+}
+async function loadData(){
+  try{
+    const r=await fetch(`${DATA_URL}?v=${Date.now()}`,{cache:"no-store"});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const fresh=await r.json();
+    data=fresh;
+    $("statusText").textContent="Data loaded";
+    $("updatedAt").textContent=`Dataset updated: ${fresh.generatedAt||"timestamp unavailable"}`;
+    $("monthFilter").innerHTML='<option value="all">All available months</option>'+(fresh.months||[]).map(m=>`<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join("");
+    if(currentStudent){
+      const refreshed=fresh.students.find(s=>s.enrollment===currentStudent.enrollment);
+      if(refreshed)render(refreshed);
+    }
+  }catch(e){$("statusText").textContent="Could not load data";$("updatedAt").textContent="Data load error: "+e.message;}
+}
+function downloadCsv(){
+  if(!currentStudent||!data)return;
+  const rows=[["Enrollment","Student","Month","Subject","Theory (%)","NLHT + NLHP (%)","Subject mean (%)"]];
+  for(const month of data.months||[]){
+    const entry=currentStudent.months?.[month];if(!entry)continue;
+    for(const [subject,streams] of Object.entries(entry.subjects||{})){
+      rows.push([currentStudent.enrollment,currentStudent.name,month,subject,streams.THEORY??"",streams["NLHT + NLHP"]??"",mean([toNum(streams.THEORY),toNum(streams["NLHT + NLHP"])]).toFixed(1)]);
+    }
+  }
+  const csv=rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`attendance_${currentStudent.enrollment}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+$("findBtn").addEventListener("click",findStudent);
+$("studentSearch").addEventListener("keydown",e=>{if(e.key==="Enter")findStudent();});
+$("clearBtn").addEventListener("click",()=>{currentStudent=null;$("studentSearch").value="";$("report").classList.add("hidden");$("noStudent").classList.remove("hidden");$("noStudent").textContent="Enter your enrollment number or name to open an individual attendance report.";});
+$("monthFilter").addEventListener("change",()=>{if(currentStudent)render(currentStudent);});
+$("downloadBtn").addEventListener("click",downloadCsv);
+loadData();
+// Refresh the displayed JSON periodically while a student has the dashboard open.
+// The GitHub workflow separately updates the published JSON on its schedule.
+setInterval(loadData,5*60*1000);
+</script>
+</body>
+</html>
